@@ -1,0 +1,13 @@
+node_modules/
+.env
+*.env.local
+server/data/
+*.db
+*.db-wal
+*.db-shm
+server/public/*.apk
+mobile/android/
+mobile/ios/
+mobile/.expo/
+mobile/dist/
+.claude/

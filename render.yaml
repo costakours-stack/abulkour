@@ -1,0 +1,36 @@
+# Render Blueprint for the Abulkour backend (https://render.com/docs/blueprint-spec).
+# Render → New → Blueprint → pick this repository. You'll be asked for the secret values below.
+services:
+  - type: web
+    name: abulkour-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # --- secrets: paste your own keys in the Render dashboard ---
+      - key: FINNHUB_API_KEY
+        sync: false
+      - key: POLYGON_API_KEY
+        sync: false
+      - key: TIINGO_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Access code the phone app must send. Render generates a random one;
+      # copy it from the dashboard into the app (Alerts → Server address).
+      - key: APP_ACCESS_TOKEN
+        generateValue: true
+      # --- settings ---
+      - key: DATABASE_PATH
+        value: ./data/abulkour.db
+      - key: QUOTE_POLL_INTERVAL_MS
+        value: "20000"
+      - key: FINNHUB_STREAMING
+        value: "true"
+      - key: NEWS_POLL_INTERVAL_MS
+        value: "90000"
