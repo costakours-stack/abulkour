@@ -75,6 +75,9 @@ export function HomeScreen() {
               <Text style={{ color: colors.accent }}>kour</Text>
             </Text>
           </View>
+          <Pressable onPress={() => nav.navigate("AI")} hitSlop={6} style={({ pressed }) => [styles.iconBtn, pressed && { opacity: 0.7 }]}>
+            <Icon name="hardware-chip-outline" size={17} color={colors.ai} />
+          </Pressable>
           <Pressable onPress={() => nav.navigate("Search")} style={({ pressed }) => [styles.searchBtn, wide && { width: 320 }, pressed && { opacity: 0.7 }]}>
             <Icon name="search" size={16} color={colors.faint} />
             {wide && <Text style={styles.searchText}>Search stocks & ETFs…</Text>}
@@ -95,7 +98,15 @@ export function HomeScreen() {
           </View>
         </View>
 
-        {error && <ErrorText text={`Can't reach Abulkour at ${getServerUrl()}. Check Alerts → Server address.`} />}
+        {error && (
+          <ErrorText
+            text={
+              /access code|401/i.test(error)
+                ? "Access code needed: open Alerts → Server address, paste the access code from Render and tap Save & test."
+                : `Can’t reach Abulkour at ${getServerUrl()}. Check your internet connection, or Alerts → Server address.`
+            }
+          />
+        )}
         {loading && !data ? (
           <Loading />
         ) : (
@@ -229,7 +240,8 @@ const styles = StyleSheet.create({
   disclaimer: { color: colors.faint, fontSize: 11, marginTop: 8 },
   link: { color: colors.accent, fontSize: 13, fontWeight: "700" },
   cols: { flexDirection: "row", gap: space.xl, alignItems: "flex-start" },
-  searchBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 9, alignSelf: "center", marginLeft: "auto", marginRight: space.md },
+  iconBtn: { backgroundColor: colors.aiSoft, borderRadius: radius.pill, padding: 9, alignSelf: "center", marginLeft: "auto", marginRight: space.sm },
+  searchBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 9, alignSelf: "center", marginRight: space.md },
   searchText: { color: colors.faint, fontSize: 13 },
   pickRow: { flexDirection: "row", alignItems: "center", gap: space.md, paddingHorizontal: space.md, paddingVertical: space.md },
   divider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },

@@ -22,6 +22,7 @@ import type { ModelRegistry } from "../ml/ModelRegistry.js";
 import { HORIZONS, type Trainer } from "../ml/Trainer.js";
 import type { Forecaster } from "../prediction/Forecaster.js";
 import type { TopPicksScanner } from "../prediction/TopPicksScanner.js";
+import type { PaperTrader } from "../trading/PaperTrader.js";
 import type { NewsImpactModel } from "../news/NewsImpactModel.js";
 import type { PredictionModel } from "../prediction/BaselineModel.js";
 import type { PointInTimeNewsView } from "../prediction/PointInTime.js";
@@ -53,6 +54,7 @@ export interface ApiDeps {
   retrain: () => Promise<void>;
   picks: TopPicksScanner;
   forecaster: Forecaster;
+  trader: PaperTrader;
 }
 
 /** Aggregate every `step` daily bars into one OHLCV bar. */
@@ -186,6 +188,10 @@ export function buildRoutes(d: ApiDeps): Router {
     void d.retrain().catch(() => {});
     res.status(202).json({ started: true });
   });
+
+  // ------------------------------------------------------------ AI paper trader (virtual money)
+
+  r.get("/paper", wrap(async (_req, res) => res.json(await d.trader.snapshot())));
 
   // ------------------------------------------------------------ top picks
 

@@ -19,6 +19,7 @@ import { NewsScreen } from "./src/screens/NewsScreen";
 import { PredictionTraceScreen } from "./src/screens/PredictionTraceScreen";
 import { SearchScreen } from "./src/screens/SearchScreen";
 import { TopPicksScreen } from "./src/screens/TopPicksScreen";
+import { TraderScreen } from "./src/screens/TraderScreen";
 import { colors } from "./src/theme";
 
 const Stack = createNativeStackNavigator();
@@ -51,8 +52,9 @@ function MainTabs() {
     >
       <Tabs.Screen name="Home" component={HomeScreen} options={{ headerShown: false, tabBarIcon: tabIcon("pulse", "pulse-outline") }} />
       <Tabs.Screen name="Picks" component={TopPicksScreen} options={{ headerShown: false, title: "Top Picks", tabBarIcon: tabIcon("trophy", "trophy-outline") }} />
+      <Tabs.Screen name="Trader" component={TraderScreen} options={{ headerShown: false, title: "AI Trader", tabBarIcon: tabIcon("cash", "cash-outline") }} />
       <Tabs.Screen name="News" component={NewsScreen} options={{ title: "News", tabBarIcon: tabIcon("newspaper", "newspaper-outline") }} />
-      <Tabs.Screen name="AI" component={ModelScreen} options={{ title: "AI Model", tabBarIcon: tabIcon("sparkles", "sparkles-outline") }} />
+
       <Tabs.Screen name="Alerts" component={AlertsScreen} options={{ title: "Alerts", tabBarIcon: tabIcon("notifications", "notifications-outline") }} />
     </Tabs.Navigator>
   );
@@ -107,6 +109,7 @@ export default function App() {
           <Stack.Screen name="Tabs" component={MainTabs} options={{ headerShown: false }} />
           <Stack.Screen name="Asset" component={AssetScreen} />
           <Stack.Screen name="Search" component={SearchScreen} options={{ title: "Search stocks & ETFs" }} />
+          <Stack.Screen name="AI" component={ModelScreen} options={{ title: "AI Model" }} />
           <Stack.Screen name="Article" component={ArticleScreen} options={{ title: "Article" }} />
           <Stack.Screen name="PredictionTrace" component={PredictionTraceScreen} options={{ title: "Prediction trace" }} />
         </Stack.Navigator>

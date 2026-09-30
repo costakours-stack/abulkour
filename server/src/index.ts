@@ -21,6 +21,8 @@ import { ModelRegistry } from "./ml/ModelRegistry.js";
 import { HORIZONS, Trainer } from "./ml/Trainer.js";
 import { Forecaster } from "./prediction/Forecaster.js";
 import { TopPicksScanner } from "./prediction/TopPicksScanner.js";
+import { PaperTrader } from "./trading/PaperTrader.js";
+import { nyMinutes, nyTimeOn } from "./util/time.js";
 import { NewsImpactModel } from "./news/NewsImpactModel.js";
 import { AnalystService } from "./ai/AnalystService.js";
 import { importSeedIfEmpty } from "./db/seed.js";
@@ -76,6 +78,7 @@ const universe = () => [...new Set(["SPY", ...config.trainingUniverse, ...watchl
 const forecaster = new Forecaster(model, registry, history, impact, pitNews, () => market.marketStatus.isOpen);
 const predictions = new PredictionService(forecaster, history, predictionStore, market, bus, () => watchlists.all());
 const picks = new TopPicksScanner(db, forecaster, history, market, universe);
+const trader = new PaperTrader(db, forecaster, market, universe);
 
 /** Sync price history, recalibrate the news-impact model, and retrain when needed. */
 async function retrain(force = true) {
@@ -108,7 +111,7 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-app-token");
   }
   if (req.method === "OPTIONS") return void res.sendStatus(204);
   next();
@@ -123,7 +126,7 @@ app.use(
   "/api",
   buildRoutes({
     providers, market, news: newsStorage, ingestion, analysis, predictions, predictionStore, model, pitNews, alerts, watchlists,
-    history, registry, trainer, impact, analyst, universe, retrain: () => retrain(true), picks, forecaster,
+    history, registry, trainer, impact, analyst, universe, retrain: () => retrain(true), picks, forecaster, trader,
   }),
 );
 
@@ -145,6 +148,19 @@ server.listen(config.port, () => {
   predictions.start();
   alerts.start();
   picks.start();
+  trader.start();
+  // On hosts that sleep when idle (Render free), keep the server awake during US market hours
+  // so the AI paper trader can run from open to close. Render sets RENDER_EXTERNAL_URL.
+  const publicUrl = process.env.RENDER_EXTERNAL_URL;
+  if (publicUrl && process.env.KEEP_AWAKE_MARKET_HOURS !== "false") {
+    setInterval(() => {
+      const now = Date.now();
+      const m = nyMinutes(now);
+      const weekday = new Date(nyTimeOn(now, 12)).getUTCDay();
+      if (weekday >= 1 && weekday <= 5 && m >= 9 * 60 + 10 && m <= 16 * 60 + 10)
+        fetch(`${publicUrl}/api/health`).catch(() => {});
+    }, 10 * 60_000);
+  }
   // Background: history sync + (re)training. Re-checked every 6 hours; retrains weekly
   // or when the history source changes (e.g. a Tiingo key is added).
   const background = () => retrain(false).catch((e) => console.warn("[ml]", e.message));
@@ -156,6 +172,7 @@ const shutdown = () => {
   market.stop();
   ingestion.stop();
   predictions.stop();
+  trader.stop();
   server.close(() => {
     db.close();
     process.exit(0);

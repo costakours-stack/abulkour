@@ -3,6 +3,7 @@ import { apiUrl, getAccessToken } from "../config";
 import type {
   AnalystBrief,
   TopPicksResponse,
+  PaperSnapshot,
   ImpactCalibration,
   ModelRecord,
   NewsMomentum,
@@ -120,6 +121,7 @@ export const api = {
   sparklines: (symbols: string[]) => req<Record<string, number[]>>(`/sparklines${qs({ symbols: symbols.join(",") })}`),
   model: () => req<any>("/model"),
   topPicks: () => req<TopPicksResponse>("/top-picks"),
+  paper: () => req<PaperSnapshot>("/paper"),
   rescan: () => req<any>("/top-picks/scan", { method: "POST" }),
   train: () => req<any>("/model/train", { method: "POST" }),
   predictionTrace: (id: string) => req<PredictionTrace>(`/predictions/${encodeURIComponent(id)}`),

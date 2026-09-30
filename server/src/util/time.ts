@@ -24,3 +24,13 @@ export function nyDate(ms: number): string {
 }
 
 export const DAY_MS = 24 * 3600_000;
+
+/** Minutes since 00:00 New York for an instant (e.g. 9:30 -> 570). */
+export function nyMinutes(ms: number): number {
+  return Math.floor((ms - nyMidnight(nyDate(ms))) / 60_000);
+}
+
+/** Epoch ms of a given New York wall-clock time on the same NY date as `ms`. */
+export function nyTimeOn(ms: number, hour: number, minute = 0): number {
+  return nyMidnight(nyDate(ms)) + (hour * 60 + minute) * 60_000;
+}

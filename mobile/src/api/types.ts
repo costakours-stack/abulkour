@@ -260,3 +260,55 @@ export interface TopPicksResponse {
   model: { version: string; hitRate: number; baselineHitRate: number; ic: number; dataSource: string } | null;
   disclaimer: string;
 }
+
+export interface PaperTrade {
+  id: string;
+  at: number;
+  side: "BUY" | "SELL";
+  symbol: string;
+  qty: number;
+  price: number;
+  value: number;
+  reason: string;
+  estPct: number | null;
+  probUp: number | null;
+  realizedPnl: number | null;
+  realizedPct: number | null;
+}
+
+export interface PaperSession {
+  date: string;
+  status: "trading" | "closed";
+  startedAt: number;
+  endedAt: number | null;
+  startEquity: number;
+  equity: number;
+  cash: number;
+  pnl: number;
+  pnlPct: number;
+  spyPct: number | null;
+  trades: number;
+  closedTrades: number;
+  winRate: number | null;
+  best: number | null;
+  worst: number | null;
+  slippageCost: number;
+  positions: { symbol: string; name: string; qty: number; entryPrice: number; price: number; value: number; pnl: number; pnlPct: number; entryAt: number; estAtEntry: number }[];
+  tradeLog: PaperTrade[];
+  equityCurve: { t: number; equity: number; spyEquity: number | null }[];
+}
+
+export interface PaperSnapshot {
+  simulated: true;
+  now: number;
+  marketOpen: boolean;
+  tradingWindow: boolean;
+  lastRunAt: number | null;
+  lastError: string | null;
+  rules: {
+    startingCash: number; maxPositions: number; cashReserve: number; minEstPct: number; minProbUp: number;
+    stopLossPct: number; takeProfitPct: number; slippage: number; intervalMs: number;
+  };
+  current: PaperSession | null;
+  history: { date: string; pnl: number; pnlPct: number; spyPct: number | null; trades: number; winRate: number | null }[];
+}
